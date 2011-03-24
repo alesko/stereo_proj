@@ -54,39 +54,71 @@ FireWireCamera::~FireWireCamera()
   cvReleaseCapture(&capture_);
 }
 
-bool FireWireCamera::Initialize(void)
+bool FireWireCamera::Initialize(int w_width, int w_height)
 {
-    XYZ_ y = {0.0,1.0,0.0};
-    camera_.vp.x = 0;
-    camera_.vp.y = 0;
-    camera_.vp.z = camera.focallength;
-    camera_.vd.x = 0;
-    camera_.vd.y = 0;
-    camera_.vd.z = -1;
-    camera_.vu = y;
+    // Set camera parameters
+  	XYZ_ u = {0.0,1.0,0.0};  // Up
+	XYZ_ p = {0.0,0.0,1.0};  // Position
+	XYZ_ d = {0.0,0.0,0.0}; // Direction (center?)
+    camera_.vp = p;
+    camera_.vd = d;
+    camera_.vu = u;
+        
+    // Some OpenGL initialization
+	glClearColor (0.0f, 0.0f, 0.0f, 0.5f);				// Black Background
+	glClearDepth (1.0f);								// Depth Buffer Setup
+	glDepthFunc (GL_LEQUAL);							// The Type Of Depth Testing (Less Or Equal)
+	glEnable(GL_DEPTH_TEST);							// Enable Depth Testing
+	glShadeModel (GL_SMOOTH);							// Select Smooth Shading
+	glHint (GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	// Set Perspective Calculations To Most Accurate
+	glEnable(GL_TEXTURE_2D);							// Enable Texture Mapping
+	
+	
+    glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Clear Screen And Depth Buffer
+ 
+    glViewport (0, 0, (GLsizei)(w_width), (GLsizei)(w_height));				// Reset The Current Viewport
+    glMatrixMode (GL_PROJECTION);										// Select The Projection Matrix
+    glLoadIdentity ();													// Reset The Projection Matrix
+    
+    
+    GLdouble fW, fH;
+    GLdouble fovY= 45.0f;
+    GLdouble aspect = (GLfloat)(w_width)/(GLfloat)(w_height);
+    GLdouble zNear  = 1;
+    GLdouble zFar   = 100;
+    
+    fH = tan( fovY / 360 * M_PI ) * zNear;
+    fW = fH * aspect;
+    glFrustum( -fW, fW, -fH, fH, zNear, zFar );               
+	
+    glMatrixMode(GL_MODELVIEW);
+    glDrawBuffer(GL_BACK_RIGHT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glLoadIdentity();
+  
+    gluLookAt(camera_.vp.x, camera_.vp.y, camera_.vp.z,  // Camera position 
+              camera_.vd.x, camera_.vd.y, camera_.vd.z,  // Camera view point/direction
+              camera_.vu.x, camera_.vu.y, camera_.vu.z); // Camera up
+	
+    return TRUE;
+}
+
+bool FireWireCamera::DrawImage(void)
+{    
+
+    return TRUE;
+
 }
                                    
 bool FireWireCamera::QueryFrame(void)
 {
-
   
   if( will_display_ == TRUE )                 
   {
-    //g_image1 = cvQueryFrame( G_camera1->capture_ );
-    //G_camera1->QueryFrame();
     camera_image_ = cvQueryFrame( capture_ );
     cvCvtColor(camera_image_, camera_image_, CV_BGR2RGB);      // Convert BGR to RBG 
   
-    //cvCvtColor(g_image1, g_image1, CV_BGR2RGB);      // Convert BGR to RBG                    
-    //g_display1 = FALSE;   
-    //G_camera1->will_display_ = FALSE;
   }           
-  //               else
-  //               {
-  //                  g_display1 = TRUE;
-                    //G_camera1->will_display_ = TRUE;
-  //               }
-                 //glBindTexture(GL_TEXTURE_2D, texture_left);
   will_display_ = !will_display_; // Toggle   
 
   glBindTexture(GL_TEXTURE_2D, texture_ );

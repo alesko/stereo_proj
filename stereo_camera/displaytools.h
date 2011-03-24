@@ -34,94 +34,40 @@
 *
 *********************************************************************/
 
-#ifndef DISPLAYTOOLS_H_
-#define DISPLAYTOOLS_H_
+#ifndef STEREODISPLAY_H_
+#define STEREODISPLAY_H_
 
-typedef struct {
-	double x,y,z;
-} XYZ;
+#include "firewire_camera_class.h"
+#include "winhandle.h"	// To use the keys
+#include <windows.h>
 
-#define CROSSPROD(p1,p2,p3) \
-   p3.x = p1.y*p2.z - p1.z*p2.y; \
-   p3.y = p1.z*p2.x - p1.x*p2.z; \
-   p3.z = p1.x*p2.y - p1.y*p2.x
-
-typedef struct {
-   XYZ vp;                /* View position           */
-   XYZ vd;                /* View direction vector   */
-   XYZ vu;                /* View up direction       */
-   XYZ pr;                /* Point to rotate about   */
-   double focallength;    /* Focal Length along vd   */
-   double aperture;       /* Camera aperture         */
-   double eyesep;         /* Eye separation          */
-	//double near,far;       /* Cutting plane distances */
-	
- double near_;
- double far_;
-	int stereo;				  /* Are we in stereo mode   */
-   int screenwidth;       /* Screen dimensions       */
-   int screenheight;      /*                         */
-} CAMERA;
-
-/*
-typedef struct {
-	int debug;             // Debug mode              
-	int record;            // Movie recording mode    
-	int windowdump;        // Image recording modes   
-	int fullscreen;        // Game mode or not        
-	double targetfps;      // Target frame rate       
-} OPTIONS;
-typedef struct {
-	int button;
-	int shift;
-	int mouseh;
-	int mousev;
-} INTERFACESTATE;*/
-
-#define TWOPI 6.283185307179586476925287
+//#define TWOPI 6.283185307179586476925287
 //#define M_PI 3.1415926535897932384626433832795
-#define DTOR 0.0174532925
-#define RTOD 57.2957795
+//efine DTOR 0.0174532925
+//efine RTOD 57.2957795
 #define ESC 27
 
 #define TRUE  1
 #define FALSE 0
 
-#define NOSTEREO     0
-#define ACTIVESTEREO 1
-#define DUALSTEREO   2
+class StereoDisplay {
+      public:
 
-//void CreateMenus(void);
-//void CreateEnvironment(void);
-//void CreateGeometry(void);
+             StereoDisplay(GL_Window* window, Keys* keys,int w_width, int w_height);
+             ~StereoDisplay();
+             void Draw();
+             //bool Update (DWORD milliseconds, FILE* fh);
+             bool Update(void);
 
-//void HandleDisplay(void);
-//void HandleKeyboard(unsigned char,int,int);
-//void HandleSpecialKeyboard(int,int,int);
-//void HandleMouse(int,int,int,int);
-//void HandleReshape(int,int);
-//void HandleMouseMotion(int,int);
-//void HandlePassiveMotion(int,int);
-//void HandleVisibility(int);
-void HandleIdle(void);
+             FireWireCamera *G_camera0;
+             FireWireCamera *G_camera1;
+             GL_Window*	g_window;
+             Keys*		g_keys;
+             
+    private:
+            
+      
+};
 
-//void GiveUsage(char *);
-//void RotateCamera(double,double,double);
-//void TranslateCamera(double,double,double);
-//void CameraHome(int);
-
-//void HandleMainMenu(int);
-//void HandleCameraMenu(int);
-
-//double Modulus(XYZ);
-void Normalise(XYZ *);
-//double GetRunTime(void);
-//int Dump2TGA(int,int,int);
-//void WriteTGA(FILE *,unsigned char *,int,int);
-
-//void OpenAVI(LPCSTR szFile);										// Opens An AVI File (szFile)
-//void GrabAVIFrame(int frame);
-//void CloseAVI(void);
-//void flipIt(void* buffer);
 
 #endif

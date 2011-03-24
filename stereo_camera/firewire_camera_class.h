@@ -56,7 +56,7 @@ typedef struct {
    XYZ_ vp;                /* View position           */
    XYZ_ vd;                /* View direction vector   */
    XYZ_ vu;                /* View up direction       */
-   XYZ_ pr;                /* Point to rotate about   */
+   //XYZ_ pr;                /* Point to rotate about   */
    double focallength;    /* Focal Length along vd   */
    double aperture;       /* Camera aperture         */
    double eyesep;         /* Eye separation          */
@@ -76,17 +76,18 @@ class FireWireCamera {
     FireWireCamera(int camera_index);
     ~FireWireCamera(void);
     bool QueryFrame(void);
-    CvCapture* capture_;
+    bool Initialize(int w_width, int w_height);
+    bool WillDisplay(void);
+    void ToggleWillDisplay();
+    bool DrawImage(void);
     
+    CvCapture* capture_;    
     IplImage* camera_image_;
     GLuint texture_;    
     bool will_display_;  // Should the image be displayed ?
     
     CAMERA_ camera_;
     
-    bool Initialize(void);
-    bool WillDisplay(void);
-    void ToggleWillDisplay();
     
   private:
     int camera_index_;   // Uniqe index
