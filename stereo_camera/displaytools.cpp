@@ -71,12 +71,13 @@ bool show_right = TRUE;
 BOOL Initialize (GL_Window* window, Keys* keys, int w_width, int w_height)
 //StereoDisplay::StereoDisplay(GL_Window* window, Keys* keys, int w_width, int w_height)
 {
-    G_camera0 = new FireWireCamera(0);
-    G_camera1 = new FireWireCamera(1);  
+    G_camera0 = new FireWireCamera(1);
+    G_camera1 = new FireWireCamera(0);  
   
 	g_window	= window;
 	g_keys		= keys;
-
+	
+    
     G_camera0->Initialize(w_width, w_height);
     G_camera1->Initialize(w_width, w_height);
 
@@ -86,8 +87,7 @@ BOOL Initialize (GL_Window* window, Keys* keys, int w_width, int w_height)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); 
 
-    G_camera0->QueryFrame();
-	
+    G_camera0->QueryFrame();	
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -105,7 +105,7 @@ void Deinitialize (void)
     delete G_camera1;
 }
 
-bool Update (DWORD milliseconds, FILE* fh)								// Perform Motion Updates Here
+bool Update (DWORD milliseconds) //, FILE* fh)								// Perform Motion Updates Here
 //bool StereoDisplay::Update(void)
 {
 	if (g_keys->keyDown [VK_ESCAPE] == TRUE)					// Is ESC Being Pressed?

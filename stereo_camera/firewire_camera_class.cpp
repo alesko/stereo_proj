@@ -40,12 +40,19 @@ FireWireCamera::FireWireCamera(int camera_index)
 {
   camera_index_ = camera_index;
   capture_ = cvCaptureFromCAM( camera_index_ ); 
+  //capture_ = cvCreateCameraCapture( CV_CAP_FIREWIRE + camera_index_ );  
   if( !capture_ ) 
     {        
-      fprintf( stderr, "ERROR: capture is NULL \n" );     
-      //getchar();     
-      //return -1;   
-    }                   
+      printf("ERROR: capture is NULL \n" );     
+      //getchar(); 
+      exit(0);    
+    }     
+  else
+    {
+      cvSetCaptureProperty(capture_, CV_CAP_PROP_FPS, 25); 
+      cvSetCaptureProperty(capture_, CV_CAP_PROP_FRAME_WIDTH, 640);      
+      cvSetCaptureProperty(capture_, CV_CAP_PROP_FRAME_HEIGHT, 480);      
+    }              
   will_display_ = TRUE;     
 }
 
