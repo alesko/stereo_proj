@@ -62,10 +62,119 @@
 FireWireCamera *G_camera1;
 GL_Window*	g_window;
 Keys*		g_keys;*/
-long g_debug_counter;
+//long g_debug_counter;
 
 //CAMERA  camera,camera_new;
-bool show_right = TRUE;
+//bool g_show_right = TRUE;
+
+
+StereoDisplay::StereoDisplay(GL_Window* window, Keys* keys, int w_width, int w_height)
+{
+    recording_ = false;
+    camera0_ = new FireWireCamera(1);
+    camera1_ = new FireWireCamera(0);  
+  
+	window_	= window;
+	keys_		= keys;
+    
+    camera0_->Initialize(w_width, w_height);
+    camera1_->Initialize(w_width, w_height);
+
+    camera1_->QueryFrame();
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); 
+
+    camera0_->QueryFrame();	
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); 
+
+ 
+	//return TRUE;												// Return TRUE (Initialization Successful)
+}
+
+StereoDisplay::~StereoDisplay(void)									// Any User DeInitialization Goes Here
+{
+    if( true == recording_  )
+      cvReleaseVideoWriter(&writer_);
+    delete camera0_;
+    delete camera1_;
+}
+    
+void StereoDisplay::SetFileName(void)
+{
+     //RecFileName_ = file_name;
+     char* file_name = "myfile.mpg";
+     double fps = cvGetCaptureProperty( camera0_->capture_, CV_CAP_PROP_FPS);
+     CvSize size = cvSize( (int)cvGetCaptureProperty( camera0_->capture_, CV_CAP_PROP_FRAME_WIDTH),
+                           (int)cvGetCaptureProperty( camera0_->capture_, CV_CAP_PROP_FRAME_HEIGHT));
+     writer_ = cvCreateVideoWriter( file_name, CV_FOURCC_DEFAULT, fps, size );                // XP Codec Pack 2.5.1
+     //writer_ = cvCreateVideoWriter( file_name, CV_FOURCC('D','I','V','X'), fps, size );                // XP Codec Pack 2.5.1
+     //writer_ = cvCreateVideoWriter( file_name, CV_FOURCC('U','2','6','3'), fps, size );                // XP Codec Pack 2.5.1
+     //writer_ = cvCreateVideoWriter( file_name, CV_FOURCC('D','I','V','3'), fps, size );                // XP Codec Pack 2.5.1
+     logpolarframe_ = cvCreateImage(size, IPL_DEPTH_8U,3);
+     recording_ = true;
+     
+}
+    
+/*bool  StereoDisplay::SetRecording(bool state)
+{
+      recording_ = state;
+      return recording_;
+}*/
+
+bool StereoDisplay::Update(void)
+{
+	if (keys_->keyDown [VK_ESCAPE] == TRUE)					// Is ESC Being Pressed?
+	{
+ 		TerminateApplication (window_);						// Terminate The Program
+	}
+
+	if (keys_->keyDown [VK_F1] == TRUE)						// Is F1 Being Pressed?
+	{
+		ToggleFullscreen (window_);							// Toggle Fullscreen Mode
+	}
+
+    return TRUE;
+        
+}
+
+void StereoDisplay::Draw()												// Draw Our Scene
+{  
+
+    IplImage* camera_image;
+    GLfloat z=-20.0;
+    if( show_right_ == TRUE)
+      camera_image = camera1_->QueryFrame();
+    else
+      camera_image = camera0_->QueryFrame();
+
+    show_right_ = !show_right_;
+
+    glLoadIdentity();										// Reset The Modelview Matrix
+    glBegin(GL_QUADS);										// Begin drawing the image texture
+	   // Front Face
+	   glTexCoord2f(1.0f, 1.0f); glVertex3f( 11.0f,  8.3f, z);
+	   glTexCoord2f(0.0f, 1.0f); glVertex3f(-11.0f,  8.3f, z);
+	   glTexCoord2f(0.0f, 0.0f); glVertex3f(-11.0f, -8.3f, z);
+	   glTexCoord2f(1.0f, 0.0f); glVertex3f( 11.0f, -8.3f, z);
+    glEnd();												// Done drawing texture
+	 
+    glFlush ();													// Flush The GL Rendering Pipeline
+    
+    if( true == recording_  )
+    {
+        cvLogPolar( camera_image, logpolarframe_, 
+                    cvPoint2D32f(camera_image->width/2,camera_image->height/2), 
+                    40, CV_INTER_LINEAR + CV_WARP_FILL_OUTLIERS);
+        //cvWriteFrame( writer_, logpolarframe_);
+    }
+   
+}
+
         
 /*
 BOOL Initialize (GL_Window* window, Keys* keys, int w_width, int w_height)
@@ -159,86 +268,3 @@ void Draw()
 }
 
 */
-
-StereoDisplay::StereoDisplay(GL_Window* window, Keys* keys, int w_width, int w_height)
-{
-    g_debug_counter=0;  
-    camera0 = new FireWireCamera(1);
-    camera1 = new FireWireCamera(0);  
-  
-	l_window	= window;
-	l_keys		= keys;
-	
-    
-    camera0->Initialize(w_width, w_height);
-    camera1->Initialize(w_width, w_height);
-
-    camera1->QueryFrame();
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); 
-
-    camera0->QueryFrame();	
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); 
-
- 
-	//return TRUE;												// Return TRUE (Initialization Successful)
-}
-
-StereoDisplay::~StereoDisplay(void)									// Any User DeInitialization Goes Here
-{
-    delete camera0;
-    delete camera1;
-}
-
-bool StereoDisplay::Update(void)
-{
-    g_debug_counter++;
-	if (l_keys->keyDown [VK_ESCAPE] == TRUE)					// Is ESC Being Pressed?
-	{
-        //Deinitialize();
-		TerminateApplication (l_window);						// Terminate The Program
-	}
-
-	if (g_debug_counter > 1000)					// Is ESC Being Pressed?
-	{
-        //Deinitialize();
-		TerminateApplication (l_window);						// Terminate The Program
-	}
-
-	if (l_keys->keyDown [VK_F1] == TRUE)						// Is F1 Being Pressed?
-	{
-		ToggleFullscreen (l_window);							// Toggle Fullscreen Mode
-	}
-
-    return TRUE;
-        
-}
-
-void StereoDisplay::Draw()												// Draw Our Scene
-{  
-
-    GLfloat z=-20.0;
-    if( show_right == TRUE)
-      camera1->QueryFrame();
-    else
-      camera0->QueryFrame();
-
-    show_right = !show_right;
-
-    glLoadIdentity();										// Reset The Modelview Matrix
-    glBegin(GL_QUADS);										// Begin drawing the image texture
-	   // Front Face
-	   glTexCoord2f(1.0f, 1.0f); glVertex3f( 11.0f,  8.3f, z);
-	   glTexCoord2f(0.0f, 1.0f); glVertex3f(-11.0f,  8.3f, z);
-	   glTexCoord2f(0.0f, 0.0f); glVertex3f(-11.0f, -8.3f, z);
-	   glTexCoord2f(1.0f, 0.0f); glVertex3f( 11.0f, -8.3f, z);
-    glEnd();												// Done drawing texture
-	 
-    glFlush ();													// Flush The GL Rendering Pipeline
-   
-}

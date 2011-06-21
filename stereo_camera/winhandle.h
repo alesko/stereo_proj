@@ -64,13 +64,13 @@ void TerminateApplication (GL_Window* window);		// Terminate The Application
 void ToggleFullscreen (GL_Window* window);			// Toggle Fullscreen / Windowed Mode
 
 // These Are The Function You Must Provide
-BOOL Initialize (GL_Window* window, Keys* keys, int w_width, int w_height);	// Performs All Your Initialization
+//BOOL Initialize (GL_Window* window, Keys* keys, int w_width, int w_height);	// Performs All Your Initialization
 
-void Deinitialize (void);							// Performs All Your DeInitialization
+//void Deinitialize (void);							// Performs All Your DeInitialization
 
 //bool Update (DWORD milliseconds, FILE* fh);					// Perform Motion Updates
-bool Update (DWORD milliseconds);					// Perform Motion Updates
+//bool Update (DWORD milliseconds);					// Perform Motion Updates
 
-void Draw (void);									// Perform All Your Scene Drawing
+//void Draw (void);									// Perform All Your Scene Drawing
 
 #endif												// GL_FRAMEWORK__INCLUDED

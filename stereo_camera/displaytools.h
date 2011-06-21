@@ -57,14 +57,22 @@ class StereoDisplay {
     void Draw();
     //bool Update (DWORD milliseconds, FILE* fh);
     bool Update(void);
+    //bool SetRecording(bool state);
+    void SetFileName(void);    
+    
+    LPCSTR RecFileName_;
+    
+  private:
 
-    FireWireCamera *camera0;
-    FireWireCamera *camera1;
-    GL_Window*	l_window;
-    Keys*		l_keys;
+    bool recording_;
+    FireWireCamera *camera0_;
+    FireWireCamera *camera1_;
+    GL_Window*	window_;
+    Keys*		keys_;
              
-    private:
-            
+    bool show_right_;
+    CvVideoWriter* writer_;
+    IplImage* logpolarframe_;
       
 };
 

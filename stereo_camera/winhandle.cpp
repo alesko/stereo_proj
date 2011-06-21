@@ -336,11 +336,10 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
     
     Keys*		l_keys;
     
-    //LPCSTR lpDataFileName;
+    LPCSTR lpDataFileName;
     //FILE* datafile;
     //lpDataFileName = __argv[1];
     //datafile = fopen(lpDataFileName,"w");
-    
  
 	Application			application;									// Application Structure
 	GL_Window			window;											// Window Structure
@@ -379,81 +378,73 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 	g_createFullScreen = window.init.isFullScreen;						// g_createFullScreen Is Set To User Default
 	while (g_isProgramLooping)											// Loop Until WM_QUIT Is Received
 	{
-        g_isProgramLooping = FALSE;											// Program Looping Is Set To FALSE
-		// Create A Window
-		window.init.isFullScreen = g_createFullScreen;					// Set Init Param Of Window Creation To Fullscreen?
-		if (CreateWindowGL (&window) == TRUE)							// Was Window Creation Successful?
+      g_isProgramLooping = FALSE;											// Program Looping Is Set To FALSE
+      // Create A Window
+	  window.init.isFullScreen = g_createFullScreen;					// Set Init Param Of Window Creation To Fullscreen?
+	  if (CreateWindowGL (&window) == TRUE)							// Was Window Creation Successful?
+	  {
+	    // At This Point We Should Have A Window That Is Setup To Render OpenGL
+		//if (Initialize (&window, &keys,window.init.width, window.init.height ) == FALSE)					// Call User Intialization
+		StereoDisplay  stereo_disp(&window, &keys, window.init.width, window.init.height);
+  	    if( NULL != __argv[1])
+        {
+            //stereo_disp.SetRecording(true);
+            stereo_disp.SetFileName(); 
+        }
+/*        else
+        {
+            stereo_disp.SetRecording(false);
+         //right_video_string = __argv[1];
+       }       */
+		/*if (Initialize (&window, &keys,window.init.width, window.init.height ) == FALSE)					// Call User Intialization
 		{
-			// At This Point We Should Have A Window That Is Setup To Render OpenGL
-			//if (Initialize (&window, &keys,window.init.width, window.init.height ) == FALSE)					// Call User Intialization
-			StereoDisplay  stereo_disp(&window, &keys, window.init.width, window.init.height);
-			/*if (Initialize (&window, &keys,window.init.width, window.init.height ) == FALSE)					// Call User Intialization
+		  // Failure
+		  TerminateApplication (&window);							// Close Window, This Will Handle The Shutdown
+		}
+		else						            								// Otherwise (Start The Message Pump)
+		{*/	
+          // Initialize was a success
+		  isMessagePumpActive = TRUE;								// Set isMessagePumpActive To TRUE
+		  while (isMessagePumpActive == TRUE)						// While The Message Pump Is Active
+		  {
+		    // Success Creating Window.  Check For Window Messages
+		    if (PeekMessage (&msg, window.hWnd, 0, 0, PM_REMOVE) != 0)
 			{
-				// Failure
-				TerminateApplication (&window);							// Close Window, This Will Handle The Shutdown
-			}
-			else						            								// Otherwise (Start The Message Pump)
-			{*/	
-                // Initialize was a success
-				isMessagePumpActive = TRUE;								// Set isMessagePumpActive To TRUE
-				while (isMessagePumpActive == TRUE)						// While The Message Pump Is Active
-				{
-					// Success Creating Window.  Check For Window Messages
-					if (PeekMessage (&msg, window.hWnd, 0, 0, PM_REMOVE) != 0)
-					{
-						// Check For WM_QUIT Message
-						if (msg.message != WM_QUIT)						// Is The Message A WM_QUIT Message?
-						{
-							DispatchMessage (&msg);						// If Not, Dispatch The Message
-						}
-						else											// Otherwise (If Message Is WM_QUIT)
-						{
-							isMessagePumpActive = FALSE;				// Terminate The Message Pump
-						}
-					}
-					else												// If There Are No Messages
-					{
-						if (window.isVisible == FALSE)					// If Window Is Not Visible
-						{
-							WaitMessage ();								// Application Is Minimized Wait For A Message
-						}
-						else											// If Window Is Visible
-						{
-							// Process Application Loop
-							tickCount = GetTickCount ();				// Get The Tick Count
-							//if ( FALSE == Update(tickCount - window.lastTickCount, datafile))     	// Update The Counter
-							//if ( FALSE == Update(tickCount-window.lastTickCount) ) //tickCount - window.lastTickCount))     	// Update The Counter
-							if ( FALSE == stereo_disp.Update() )							
-							   break; // End while
-							window.lastTickCount = tickCount;			// Set Last Count To Current Count
-							stereo_disp.Draw();								// Draw Our Scene
-                            /*if ( FALSE == my_stereo.Update())     	// Update The Counter
-							   break; // End while
-							window.lastTickCount = tickCount;			// Set Last Count To Current Count
-							my_stereo.Draw ();
-							*/
-							SwapBuffers (window.hDC);					// Swap Buffers (Double Buffering)
-						}
-					}
-				//}														// Loop While isMessagePumpActive == TRUE
-			}															// If (Initialize (...
-
-			// Application Is Finished
-			//Deinitialize ();											// User Defined DeInitialization
-
-			DestroyWindowGL (&window);									// Destroy The Active Window
-		}
-		else															// If Window Creation Failed
-		{
-			// Error Creating Window
-			MessageBox (HWND_DESKTOP, "Error Creating OpenGL Window", "Error", MB_OK | MB_ICONEXCLAMATION);
-			g_isProgramLooping = FALSE;									// Terminate The Loop
-		}
-	}																	// While (isProgramLooping)
-    //fclose(datafile);
-	UnregisterClass (application.className, application.hInstance);		// UnRegister Window Class
-	return 0;
-    exit(0);
+			  // Check For WM_QUIT Message
+			  if (msg.message != WM_QUIT)						// Is The Message A WM_QUIT Message?
+			    DispatchMessage (&msg);						// If Not, Dispatch The Message
+			  else											// Otherwise (If Message Is WM_QUIT)
+			    isMessagePumpActive = FALSE;				// Terminate The Message Pump
+		    }
+			else												// If There Are No Messages
+			{
+			  if (window.isVisible == FALSE)					// If Window Is Not Visible
+				WaitMessage ();								// Application Is Minimized Wait For A Message
+			  else											// If Window Is Visible
+			  {
+			    // Process Application Loop
+				tickCount = GetTickCount ();				// Get The Tick Count
+				if ( FALSE == stereo_disp.Update() )							
+				   break; // End while
+				window.lastTickCount = tickCount;			// Set Last Count To Current Count
+				stereo_disp.Draw();								// Draw Our Scene
+				SwapBuffers (window.hDC);					// Swap Buffers (Double Buffering)
+			  }
+            }// Loop While isMessagePumpActive == TRUE
+		}															// If (Initialize (...
+		DestroyWindowGL (&window);									// Destroy The Active Window
+     }
+     else															// If Window Creation Failed
+	 {
+	   // Error Creating Window
+	   MessageBox (HWND_DESKTOP, "Error Creating OpenGL Window", "Error", MB_OK | MB_ICONEXCLAMATION);
+       g_isProgramLooping = FALSE;									// Terminate The Loop
+	}
+  }																	// While (isProgramLooping)
+  //fclose(datafile);
+  UnregisterClass (application.className, application.hInstance);		// UnRegister Window Class
+  return 0;
+  exit(0);
 }																		// End Of WinMain()
 
 // Program Entry (WinMain)

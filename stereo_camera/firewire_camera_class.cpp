@@ -49,9 +49,13 @@ FireWireCamera::FireWireCamera(int camera_index)
     }     
   else
     {
-      cvSetCaptureProperty(capture_, CV_CAP_PROP_FPS, 25); 
-      cvSetCaptureProperty(capture_, CV_CAP_PROP_FRAME_WIDTH, 640);      
-      cvSetCaptureProperty(capture_, CV_CAP_PROP_FRAME_HEIGHT, 480);      
+      //cvSetCaptureProperty(capture_, CV_CAP_PROP_FPS, 25); 
+      //      cvSetCaptureProperty(capture_, CV_CAP_PROP_FRAME_WIDTH, 640);      
+      //      cvSetCaptureProperty(capture_, CV_CAP_PROP_FRAME_HEIGHT, 480);      
+      cvSetCaptureProperty(capture_, CV_CAP_PROP_FPS, 15);       
+      cvSetCaptureProperty(capture_, CV_CAP_PROP_FRAME_WIDTH, 320);      
+      cvSetCaptureProperty(capture_, CV_CAP_PROP_FRAME_HEIGHT, 240);      
+
     }              
   will_display_ = TRUE;     
 }
@@ -117,7 +121,7 @@ bool FireWireCamera::DrawImage(void)
 
 }
                                    
-bool FireWireCamera::QueryFrame(void)
+IplImage* FireWireCamera::QueryFrame(void)
 {
   
   if( will_display_ == TRUE )                 
@@ -141,7 +145,7 @@ bool FireWireCamera::QueryFrame(void)
   
   
   
-  return TRUE;                      
+  return camera_image_; //TRUE;                      
 }
 
 /*bool FireWireCamera::WillDisplay(void)

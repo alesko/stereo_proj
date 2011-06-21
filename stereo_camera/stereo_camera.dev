@@ -21,11 +21,11 @@ OverrideOutput=1
 OverrideOutputName=stereo_camera.exe
 HostApplication=
 Folders=
-CommandLine=
+CommandLine=test.avi
 IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=1
-CompilerSettings=0000000000001000000000
+CompilerSettings=0000000000100101000000
 UseCustomMakefile=0
 CustomMakefile=
 

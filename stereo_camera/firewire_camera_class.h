@@ -75,7 +75,7 @@ class FireWireCamera {
   public:
     FireWireCamera(int camera_index);
     ~FireWireCamera(void);
-    bool QueryFrame(void);
+    IplImage* QueryFrame(void);
     bool Initialize(int w_width, int w_height);
     bool WillDisplay(void);
     void ToggleWillDisplay();
