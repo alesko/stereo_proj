@@ -51,18 +51,17 @@
 #define FALSE 0
 
 class StereoDisplay {
-      public:
+  public:
+    StereoDisplay(GL_Window* window, Keys* keys,int w_width, int w_height);
+    ~StereoDisplay();
+    void Draw();
+    //bool Update (DWORD milliseconds, FILE* fh);
+    bool Update(void);
 
-             StereoDisplay(GL_Window* window, Keys* keys,int w_width, int w_height);
-             ~StereoDisplay();
-             void Draw();
-             //bool Update (DWORD milliseconds, FILE* fh);
-             bool Update(void);
-
-             FireWireCamera *G_camera0;
-             FireWireCamera *G_camera1;
-             GL_Window*	g_window;
-             Keys*		g_keys;
+    FireWireCamera *camera0;
+    FireWireCamera *camera1;
+    GL_Window*	l_window;
+    Keys*		l_keys;
              
     private:
             

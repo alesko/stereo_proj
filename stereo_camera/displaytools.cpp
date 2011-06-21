@@ -58,19 +58,19 @@
 #define CDS_FULLSCREEN 4										// Compilers. By Defining It This Way,
 #endif															// We Can Avoid Errors
 
-FireWireCamera *G_camera0;
+/*FireWireCamera *G_camera0;
 FireWireCamera *G_camera1;
 GL_Window*	g_window;
-Keys*		g_keys;
-
+Keys*		g_keys;*/
+long g_debug_counter;
 
 //CAMERA  camera,camera_new;
 bool show_right = TRUE;
         
-
+/*
 BOOL Initialize (GL_Window* window, Keys* keys, int w_width, int w_height)
-//StereoDisplay::StereoDisplay(GL_Window* window, Keys* keys, int w_width, int w_height)
 {
+    g_debug_counter=0;  
     G_camera0 = new FireWireCamera(1);
     G_camera1 = new FireWireCamera(0);  
   
@@ -98,6 +98,7 @@ BOOL Initialize (GL_Window* window, Keys* keys, int w_width, int w_height)
 }
 
 
+
 void Deinitialize (void)	
 //StereoDisplay::~StereoDisplay(void)									// Any User DeInitialization Goes Here
 {
@@ -105,10 +106,18 @@ void Deinitialize (void)
     delete G_camera1;
 }
 
+
+
 bool Update (DWORD milliseconds) //, FILE* fh)								// Perform Motion Updates Here
-//bool StereoDisplay::Update(void)
 {
+    g_debug_counter++;
 	if (g_keys->keyDown [VK_ESCAPE] == TRUE)					// Is ESC Being Pressed?
+	{
+        Deinitialize();
+		TerminateApplication (g_window);						// Terminate The Program
+	}
+
+	if (g_debug_counter > 1000)					// Is ESC Being Pressed?
 	{
         Deinitialize();
 		TerminateApplication (g_window);						// Terminate The Program
@@ -119,22 +128,13 @@ bool Update (DWORD milliseconds) //, FILE* fh)								// Perform Motion Updates 
 		ToggleFullscreen (g_window);							// Toggle Fullscreen Mode
 	}
 
-
-	/*if ((g_keys->keyDown ['B']) && !bp)							// Is 'B' Being Pressed And Not Held?
-	{
-		bp=TRUE;												// Set bp To True
-		bg=!bg;													// Toggle Background Off/On
-	}
-	if (!g_keys->keyDown['B'])									// Is 'B' Released?
-		bp=FALSE;												// Set bp To False
-		
-	*/
     return TRUE;
         
 }
 
+
+
 void Draw()
-//void StereoDisplay::Draw()												// Draw Our Scene
 {  
 
     GLfloat z=-20.0;
@@ -158,3 +158,87 @@ void Draw()
    
 }
 
+*/
+
+StereoDisplay::StereoDisplay(GL_Window* window, Keys* keys, int w_width, int w_height)
+{
+    g_debug_counter=0;  
+    camera0 = new FireWireCamera(1);
+    camera1 = new FireWireCamera(0);  
+  
+	l_window	= window;
+	l_keys		= keys;
+	
+    
+    camera0->Initialize(w_width, w_height);
+    camera1->Initialize(w_width, w_height);
+
+    camera1->QueryFrame();
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); 
+
+    camera0->QueryFrame();	
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); 
+
+ 
+	//return TRUE;												// Return TRUE (Initialization Successful)
+}
+
+StereoDisplay::~StereoDisplay(void)									// Any User DeInitialization Goes Here
+{
+    delete camera0;
+    delete camera1;
+}
+
+bool StereoDisplay::Update(void)
+{
+    g_debug_counter++;
+	if (l_keys->keyDown [VK_ESCAPE] == TRUE)					// Is ESC Being Pressed?
+	{
+        //Deinitialize();
+		TerminateApplication (l_window);						// Terminate The Program
+	}
+
+	if (g_debug_counter > 1000)					// Is ESC Being Pressed?
+	{
+        //Deinitialize();
+		TerminateApplication (l_window);						// Terminate The Program
+	}
+
+	if (l_keys->keyDown [VK_F1] == TRUE)						// Is F1 Being Pressed?
+	{
+		ToggleFullscreen (l_window);							// Toggle Fullscreen Mode
+	}
+
+    return TRUE;
+        
+}
+
+void StereoDisplay::Draw()												// Draw Our Scene
+{  
+
+    GLfloat z=-20.0;
+    if( show_right == TRUE)
+      camera1->QueryFrame();
+    else
+      camera0->QueryFrame();
+
+    show_right = !show_right;
+
+    glLoadIdentity();										// Reset The Modelview Matrix
+    glBegin(GL_QUADS);										// Begin drawing the image texture
+	   // Front Face
+	   glTexCoord2f(1.0f, 1.0f); glVertex3f( 11.0f,  8.3f, z);
+	   glTexCoord2f(0.0f, 1.0f); glVertex3f(-11.0f,  8.3f, z);
+	   glTexCoord2f(0.0f, 0.0f); glVertex3f(-11.0f, -8.3f, z);
+	   glTexCoord2f(1.0f, 0.0f); glVertex3f( 11.0f, -8.3f, z);
+    glEnd();												// Done drawing texture
+	 
+    glFlush ();													// Flush The GL Rendering Pipeline
+   
+}

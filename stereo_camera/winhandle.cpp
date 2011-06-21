@@ -365,6 +365,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 
 	ZeroMemory (&keys, sizeof (Keys));									// Zero keys Structure
 
+    
 
 	// Register A Class For Our Window To Use
 	if (RegisterWindowClass (&application) == FALSE)					// Did Registering A Class Fail?
@@ -384,15 +385,15 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 		if (CreateWindowGL (&window) == TRUE)							// Was Window Creation Successful?
 		{
 			// At This Point We Should Have A Window That Is Setup To Render OpenGL
-			if (Initialize (&window, &keys,window.init.width, window.init.height ) == FALSE)					// Call User Intialization
+			//if (Initialize (&window, &keys,window.init.width, window.init.height ) == FALSE)					// Call User Intialization
+			StereoDisplay  stereo_disp(&window, &keys, window.init.width, window.init.height);
+			/*if (Initialize (&window, &keys,window.init.width, window.init.height ) == FALSE)					// Call User Intialization
 			{
 				// Failure
 				TerminateApplication (&window);							// Close Window, This Will Handle The Shutdown
 			}
 			else						            								// Otherwise (Start The Message Pump)
-			{	
-
-          														// Set bp To False    
+			{*/	
                 // Initialize was a success
 				isMessagePumpActive = TRUE;								// Set isMessagePumpActive To TRUE
 				while (isMessagePumpActive == TRUE)						// While The Message Pump Is Active
@@ -421,10 +422,11 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 							// Process Application Loop
 							tickCount = GetTickCount ();				// Get The Tick Count
 							//if ( FALSE == Update(tickCount - window.lastTickCount, datafile))     	// Update The Counter
-							if ( FALSE == Update(tickCount-window.lastTickCount) ) //tickCount - window.lastTickCount))     	// Update The Counter
+							//if ( FALSE == Update(tickCount-window.lastTickCount) ) //tickCount - window.lastTickCount))     	// Update The Counter
+							if ( FALSE == stereo_disp.Update() )							
 							   break; // End while
 							window.lastTickCount = tickCount;			// Set Last Count To Current Count
-							Draw ();								// Draw Our Scene
+							stereo_disp.Draw();								// Draw Our Scene
                             /*if ( FALSE == my_stereo.Update())     	// Update The Counter
 							   break; // End while
 							window.lastTickCount = tickCount;			// Set Last Count To Current Count
@@ -433,11 +435,11 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 							SwapBuffers (window.hDC);					// Swap Buffers (Double Buffering)
 						}
 					}
-				}														// Loop While isMessagePumpActive == TRUE
+				//}														// Loop While isMessagePumpActive == TRUE
 			}															// If (Initialize (...
 
 			// Application Is Finished
-			Deinitialize ();											// User Defined DeInitialization
+			//Deinitialize ();											// User Defined DeInitialization
 
 			DestroyWindowGL (&window);									// Destroy The Active Window
 		}
@@ -451,10 +453,11 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
     //fclose(datafile);
 	UnregisterClass (application.className, application.hInstance);		// UnRegister Window Class
 	return 0;
+    exit(0);
 }																		// End Of WinMain()
 
 // Program Entry (WinMain)
-int WINAPI WinMain_new (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+/*int WINAPI WinMain_new (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
     
     
@@ -563,4 +566,6 @@ int WINAPI WinMain_new (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     //fclose(datafile);
 	UnregisterClass (application.className, application.hInstance);		// UnRegister Window Class
 	return 0;
+	exit (0);
 }											
+*/
