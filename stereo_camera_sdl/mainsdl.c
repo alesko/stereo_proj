@@ -1,12 +1,15 @@
 #include <SDL/SDL.h>
 #include <gl/gl.h>
 
-#include <windows.h>
+//#include <windows.h>
 #include <stdio.h>
+#include <iostream>
 
 #include <cv.h>
 #include <highgui.h>
-
+#include <cvaux.h>
+//#include <cvcam.h>
+#include <cxcore.h>
 
 /*
  PLEASE NOTE: the program will require SDL.dll which is located in
@@ -14,7 +17,29 @@
 			  program's home directory or the path.
  */
 
+using namespace std;
+
 int main(int argc, char *argv[]){
+
+  cout << "Hello" << endl;         
+  bool stereo = true;
+  bool mirror = false;
+  bool text = false;
+  bool record = false;    
+  int width = 400;
+  int height = 300;
+
+
+  for(int i = 1; i < argc; i++){
+    if( 0 == strcmp(argv[i], "-ns") )
+      stereo = false;
+    if( 0 == strcmp(argv[i], "-m") )
+      mirror = true;    
+   if( 0 == strcmp(argv[i], "-t") )
+      text = true;
+   if( 0 == strcmp(argv[i], "-r") )
+      record = true;    
+  }   
 
   SDL_Event event;
   
@@ -38,8 +63,8 @@ int main(int argc, char *argv[]){
   else
     {
       cvSetCaptureProperty(capture_left_, CV_CAP_PROP_FPS, 30);       
-      cvSetCaptureProperty(capture_left_, CV_CAP_PROP_FRAME_WIDTH, 800);      
-      cvSetCaptureProperty(capture_left_, CV_CAP_PROP_FRAME_HEIGHT, 600);      
+      cvSetCaptureProperty(capture_left_, CV_CAP_PROP_FRAME_WIDTH, width);      
+      cvSetCaptureProperty(capture_left_, CV_CAP_PROP_FRAME_HEIGHT, height);      
     }     
   CvCapture* capture_right_ = cvCaptureFromCAM( camera_right_ );
   if( !capture_right_ ) 
@@ -50,8 +75,8 @@ int main(int argc, char *argv[]){
   else
     {
       cvSetCaptureProperty(capture_right_, CV_CAP_PROP_FPS, 30);       
-      cvSetCaptureProperty(capture_right_, CV_CAP_PROP_FRAME_WIDTH, 800);      
-      cvSetCaptureProperty(capture_right_, CV_CAP_PROP_FRAME_HEIGHT, 600);      
+      cvSetCaptureProperty(capture_right_, CV_CAP_PROP_FRAME_WIDTH, width);      
+      cvSetCaptureProperty(capture_right_, CV_CAP_PROP_FRAME_HEIGHT, height);      
     }     
 
   // Init the video recording
@@ -59,17 +84,20 @@ int main(int argc, char *argv[]){
   CvSize size = cvSize( (int)cvGetCaptureProperty( capture_right_, CV_CAP_PROP_FRAME_WIDTH),
                         (int)cvGetCaptureProperty( capture_right_, CV_CAP_PROP_FRAME_HEIGHT));
   //writer_ = cvCreateVideoWriter( "flv1.avi", CV_FOURCC_DEFAULT, fps, size );                // XP Codec Pack 2.5.1  
-  writer_ = cvCreateVideoWriter( "default.avi", CV_FOURCC_DEFAULT, fps, size, (int)1);                // XP Codec Pack 2.5.1
+  writer_ = cvCreateVideoWriter( "default.avi", CV_FOURCC_DEFAULT, fps, size);                // XP Codec Pack 2.5.1
   //writer_ = cvCreateVideoWriter( filename, CV_FOURCC('X','V','I','D'), fps, size );                // XP Codec Pack 2.5.1
   //writer_ = cvCreateVideoWriter( "mytest.divx", CV_FOURCC('D','I','V','X'), fps, size );                // XP Codec Pack 2.5.1
   //writer_ = cvCreateVideoWriter( file_name, CV_FOURCC('U','2','6','3'), fps, size );                // XP Codec Pack 2.5.1
   //writer_ = cvCreateVideoWriter( file_name, CV_FOURCC('D','I','V','3'), fps, size );                // XP Codec Pack 2.5.1
   // writer_ = cvCreateVideoWriter( , CV_FOURCC('F','L','V','1'), fps, size );                // XP Codec Pack 2.5.1  
-     logpolarframe_ = cvCreateImage(size, IPL_DEPTH_8U,3);
+  //writer_ = cvCreateVideoWriter( "myvideo.avi", CV_FOURCC('I','2','4','0'), fps, size );                // XP Codec Pack 2.5.1  
+  if( writer_ == NULL ){
+    cout << "writer_ == NULL" << endl;
+    exit(0);
+  }
+  logpolarframe_ = cvCreateImage(size, IPL_DEPTH_8U,3);
 
   SDL_Init(SDL_INIT_VIDEO);
-  int width = 800;
-  int height = 600;
   SDL_Surface* screen = SDL_SetVideoMode(width, height, 0, SDL_OPENGL | SDL_HWSURFACE | SDL_NOFRAME | SDL_FULLSCREEN);
 
   // Some OpenGL initialization from stereoviewer
@@ -117,10 +145,18 @@ int main(int argc, char *argv[]){
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-  int done;
-  for(done = 0; !done;){
+  CvFont font;
+  double hScale=1.0;
+  double vScale=1.0;
+  int    lineWidth=1;
+  cvInitFont(&font,CV_FONT_HERSHEY_SIMPLEX|CV_FONT_ITALIC, hScale,vScale,0,lineWidth);
 
-    display_right_ = !display_right_;
+
+  int done = 0;
+  while(done == 0){
+
+    if( stereo == true )
+      display_right_ = !display_right_;
 
     if( display_right_ == false )                 
     {
@@ -128,8 +164,11 @@ int main(int argc, char *argv[]){
       {        
         camera_image_left_ = cvQueryFrame( capture_left_ );
         cvCvtColor(camera_image_left_, camera_image_left_, CV_BGR2RGB);      // Convert BGR to RBG 
+        if( text )
+          cvPutText (camera_image_left_,"Left camera view",cvPoint(5,camera_image_left_->height-10), &font, cvScalar(255,255,0));
       }
-      will_display_l_ = !will_display_l_;
+      if( stereo == true )
+        will_display_l_ = !will_display_l_;
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       glBindTexture(GL_TEXTURE_2D, texture_ );
       glTexImage2D(GL_TEXTURE_2D,        //target
@@ -148,12 +187,16 @@ int main(int argc, char *argv[]){
       {
         camera_image_right_ = cvQueryFrame( capture_right_ );
         cvCvtColor(camera_image_right_, camera_image_right_, CV_BGR2RGB);      // Convert BGR to RBG 
+        if( text )
+          cvPutText (camera_image_right_,"Right camera view",cvPoint(5,camera_image_right_->height-10), &font, cvScalar(255,255,0));
+
         cvLogPolar( camera_image_right_, logpolarframe_, 
                     cvPoint2D32f(camera_image_right_->width/2,camera_image_right_->height/2), 
                     40, CV_INTER_LINEAR + CV_WARP_FILL_OUTLIERS);
-        //cvWriteFrame( writer_, logpolarframe_);
+        //cvWriteFrame( writer_ , logpolarframe_);
       }
-      will_display_r_ = !will_display_r_;
+      if( stereo == true )
+        will_display_r_ = !will_display_r_;
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       glBindTexture(GL_TEXTURE_2D, texture_ );
       glTexImage2D(GL_TEXTURE_2D,        //target
@@ -171,12 +214,22 @@ int main(int argc, char *argv[]){
 
     glLoadIdentity();
     glBegin(GL_QUADS);										// Begin drawing the image texture
-       glTexCoord2f(1.0f, 1.0f); glVertex2f( 1.0f,  -1.0f);	   
-       glTexCoord2f(0.0f, 1.0f); glVertex2f(-1.0f,  -1.0f);
-	   glTexCoord2f(0.0f, 0.0f); glVertex2f(-1.0f, 1.0f);
-	   glTexCoord2f(1.0f, 0.0f); glVertex2f( 1.0f, 1.0f);
+    if( mirror)
+    {
+      glTexCoord2f(1.0f, 1.0f); glVertex2f(-1.0f,  -1.0f); // top left
+	  glTexCoord2f(1.0f, 0.0f);	    glVertex2f(-1.0f, 1.0f);   // bottom left
+      glTexCoord2f(0.0f, 0.0f);  glVertex2f( 1.0f, 1.0f);   // bottom right
+      glTexCoord2f(0.0f, 1.0f);        glVertex2f( 1.0f,  -1.0f);	// top right
+    }
+    else
+    {
+       glTexCoord2f(1.0f, 1.0f); glVertex2f( 1.0f,  -1.0f);	// top right
+       glTexCoord2f(0.0f, 1.0f); glVertex2f(-1.0f,  -1.0f); // top left
+	   glTexCoord2f(0.0f, 0.0f); glVertex2f(-1.0f, 1.0f);   // bottom left
+	   glTexCoord2f(1.0f, 0.0f); glVertex2f( 1.0f, 1.0f);   // bottom right
+    }   
     glEnd();
-
+    
     SDL_GL_SwapBuffers();
     SDL_PollEvent(&event);
     if(event.key.keysym.sym == SDLK_ESCAPE)

@@ -7,14 +7,14 @@ Ver=1
 ObjFiles=
 Includes=
 Libs=
-PrivateResource=sdlopengl_private.rc
+PrivateResource=
 ResourceIncludes=
 MakeIncludes=
 Compiler=-Dmain=SDL_main_@@_
 CppCompiler=
 Linker=-lmingw32 -lSDLmain -lSDL -lopengl32_@@_
 IsCpp=1
-Icon=sdlopengl.ico
+Icon=
 ExeOutput=
 ObjectOutput=
 OverrideOutput=0
@@ -27,7 +27,7 @@ CustomMakefile=
 IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=1
-CompilerSettings=0000000000001101000000
+CompilerSettings=0000000000100101000000
 
 [Unit1]
 FileName=mainsdl.c
