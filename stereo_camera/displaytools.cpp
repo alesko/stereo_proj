@@ -104,19 +104,31 @@ StereoDisplay::~StereoDisplay(void)									// Any User DeInitialization Goes He
     delete camera1_;
 }
     
-void StereoDisplay::SetFileName(void)
+//void StereoDisplay::SetFileName(LPSTR filename)
+bool StereoDisplay::SetFileName(void)
 {
-     //RecFileName_ = file_name;
-     char* file_name = "myfile.mpg";
+     int isColor = 1;
      double fps = cvGetCaptureProperty( camera0_->capture_, CV_CAP_PROP_FPS);
      CvSize size = cvSize( (int)cvGetCaptureProperty( camera0_->capture_, CV_CAP_PROP_FRAME_WIDTH),
                            (int)cvGetCaptureProperty( camera0_->capture_, CV_CAP_PROP_FRAME_HEIGHT));
-     writer_ = cvCreateVideoWriter( file_name, CV_FOURCC_DEFAULT, fps, size );                // XP Codec Pack 2.5.1
-     //writer_ = cvCreateVideoWriter( file_name, CV_FOURCC('D','I','V','X'), fps, size );                // XP Codec Pack 2.5.1
+                           //http://www.xvidmovies.com/codec/ 
+                           // divx.com
+     //writer_ = cvCreateVideoWriter( filename, CV_FOURCC_DEFAULT, fps, size, isColor );                // XP Codec Pack 2.5.1
+     //writer_ = cvCreateVideoWriter( filename, CV_FOURCC('X','V','I','D'), fps, size );                // XP Codec Pack 2.5.1
+     //writer_ = cvCreateVideoWriter( "mytest.divx", CV_FOURCC('D','I','V','X'), fps, size );                // XP Codec Pack 2.5.1
      //writer_ = cvCreateVideoWriter( file_name, CV_FOURCC('U','2','6','3'), fps, size );                // XP Codec Pack 2.5.1
      //writer_ = cvCreateVideoWriter( file_name, CV_FOURCC('D','I','V','3'), fps, size );                // XP Codec Pack 2.5.1
-     logpolarframe_ = cvCreateImage(size, IPL_DEPTH_8U,3);
-     recording_ = true;
+     writer_ = cvCreateVideoWriter( "flv1.avi", CV_FOURCC('F','L','V','1'), fps, size );                // XP Codec Pack 2.5.1  
+     if( NULL == writer_ )
+     {
+       return false;
+     }      
+     else
+     {   
+       logpolarframe_ = cvCreateImage(size, IPL_DEPTH_8U,3);
+       recording_ = true;
+       return true;
+     }
      
 }
     
@@ -170,7 +182,7 @@ void StereoDisplay::Draw()												// Draw Our Scene
         cvLogPolar( camera_image, logpolarframe_, 
                     cvPoint2D32f(camera_image->width/2,camera_image->height/2), 
                     40, CV_INTER_LINEAR + CV_WARP_FILL_OUTLIERS);
-        //cvWriteFrame( writer_, logpolarframe_);
+        cvWriteFrame( writer_, logpolarframe_);
     }
    
 }

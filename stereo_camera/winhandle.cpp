@@ -11,6 +11,7 @@
 #include <highgui.h>
 #include <stdio.h>
 #include <string.h>
+#include <iostream>
 #include <time.h>
 
 #include <windows.h>													// Header File For The Windows Library
@@ -333,7 +334,6 @@ BOOL RegisterWindowClass (Application* application)						// Register A Window Cl
 // Program Entry (WinMain)
 int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
-    
     Keys*		l_keys;
     
     LPCSTR lpDataFileName;
@@ -386,11 +386,14 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 	    // At This Point We Should Have A Window That Is Setup To Render OpenGL
 		//if (Initialize (&window, &keys,window.init.width, window.init.height ) == FALSE)					// Call User Intialization
 		StereoDisplay  stereo_disp(&window, &keys, window.init.width, window.init.height);
-  	    if( NULL != __argv[1])
-        {
-            //stereo_disp.SetRecording(true);
-            stereo_disp.SetFileName(); 
-        }
+  	    //if( NULL != __argv[1])
+        //{
+            //stereo_disp.SetFileName(__argv[1]); 
+            /*if( stereo_disp.SetFileName() == false)
+            {
+                exit(0);
+            }*/
+        //}
 /*        else
         {
             stereo_disp.SetRecording(false);

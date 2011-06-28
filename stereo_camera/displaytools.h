@@ -40,6 +40,7 @@
 #include "firewire_camera_class.h"
 #include "winhandle.h"	// To use the keys
 #include <windows.h>
+//#include <stdafx.h>
 
 //#define TWOPI 6.283185307179586476925287
 //#define M_PI 3.1415926535897932384626433832795
@@ -58,7 +59,8 @@ class StereoDisplay {
     //bool Update (DWORD milliseconds, FILE* fh);
     bool Update(void);
     //bool SetRecording(bool state);
-    void SetFileName(void);    
+    //void SetFileName(LPSTR filename);    
+    bool SetFileName(void);
     
     LPCSTR RecFileName_;
     

@@ -57,16 +57,16 @@ typedef struct {
    XYZ_ vd;                /* View direction vector   */
    XYZ_ vu;                /* View up direction       */
    //XYZ_ pr;                /* Point to rotate about   */
-   double focallength;    /* Focal Length along vd   */
-   double aperture;       /* Camera aperture         */
-   double eyesep;         /* Eye separation          */
+   //double focallength;    /* Focal Length along vd   */
+   //double aperture;       /* Camera aperture         */
+   //double eyesep;         /* Eye separation          */
 	//double near,far;       /* Cutting plane distances */
 	
-   double near_;
-   double far_;
-   int stereo;				  /* Are we in stereo mode   */
-   int screenwidth;       /* Screen dimensions       */
-   int screenheight;      /*                         */
+   //double near_;
+   //double far_;
+   //int stereo;				  /* Are we in stereo mode   */
+   //int screenwidth;       /* Screen dimensions       */
+   //int screenheight;      /*                         */
 } CAMERA_;
 
 

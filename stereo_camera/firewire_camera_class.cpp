@@ -128,7 +128,6 @@ IplImage* FireWireCamera::QueryFrame(void)
   {
     camera_image_ = cvQueryFrame( capture_ );
     cvCvtColor(camera_image_, camera_image_, CV_BGR2RGB);      // Convert BGR to RBG 
-  
   }           
   will_display_ = !will_display_; // Toggle   
 
